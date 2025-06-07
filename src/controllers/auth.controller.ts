@@ -110,7 +110,37 @@ export const sendPasswordResetLink = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true });
   } catch (err) {
-    console.error("Password reset error:", err);
+    console.error("Send password reset link error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const validatePassword = async (req: Request, res: Response) => {
+  const { token } = req.params;
+
+  if (!token) {
+    res.status(400).json({ message: "Token is required" });
+    return;
+  }
+
+  try {
+    // Hash the token to match DB
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+    // Find user with valid token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() }, // token is still valid
+    });
+
+    if (!user) {
+      res.status(400).json({ message: "Invalid or expired reset token" });
+      return;
+    }
+
+    res.json({ isValid: true });
+  } catch (err) {
+    console.error("Validate password error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -149,6 +179,6 @@ export const resetPassword = async (req: Request, res: Response) => {
     res.json({ success: true });
   } catch (err) {
     console.error("Reset password error:", err);
-    res.status(403).json({ message: "Invalid refresh token" });
+    res.status(500).json({ message: "Server error" });
   }
 };
