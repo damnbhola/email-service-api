@@ -21,6 +21,7 @@ export const sendEmail = async (
   try {
     await sgMail.send(msg);
     console.log(`Email sent to ${to}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error("SendGrid error:", error?.response?.body || error.message);
     throw new Error("Failed to send email");
@@ -48,6 +49,7 @@ export const sendNoReplyEmail = async (
   try {
     await sgMail.send(msg);
     console.log(`Template email sent to ${to}`);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(
       "SendGrid template error:",
