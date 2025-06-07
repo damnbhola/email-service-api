@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.options("*", cors());
 app.use(
   cors({
     origin: process.env.FRONTEND_URL, // frontend URL

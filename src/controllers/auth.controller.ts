@@ -9,7 +9,7 @@ import {
 } from "../utils/jwt";
 import { sendResetEmail } from "../utils/email";
 
-const isProduction = process.env.NODE_ENV === "production";
+const isProduction = process.env.NODE_ENV === "prod";
 
 export const signup = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
