@@ -24,8 +24,8 @@ export const isAuthenticated = (
     const decoded = verifyAccessToken(token);
     req.userId = decoded.userId;
     next();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (err) {
-    console.error("Token verification failed:", err);
     res.status(401).json({ message: "Invalid token" });
   }
 };
