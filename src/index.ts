@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN, // frontend URL
+    origin: process.env.FRONTEND_URL, // frontend URL
     credentials: true, // allow cookies if needed
   })
 );
