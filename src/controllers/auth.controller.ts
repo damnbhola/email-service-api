@@ -108,7 +108,6 @@ export const sendPasswordResetLink = async (req: Request, res: Response) => {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     await sendNoReplyEmail(email, NO_REPLY_EMAIL_TEMPLATES.RESET_PASSWORD, {
-      subject: "Password reset requested",
       resetUrl,
     });
 
