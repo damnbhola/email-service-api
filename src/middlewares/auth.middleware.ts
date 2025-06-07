@@ -25,6 +25,7 @@ export const isAuthenticated = (
     req.userId = decoded.userId;
     next();
   } catch (err) {
+    console.error("Token verification failed:", err);
     res.status(401).json({ message: "Invalid token" });
   }
 };

@@ -37,6 +37,7 @@ export const signup = async (req: Request, res: Response) => {
 
     res.status(201).json({ accessToken });
   } catch (err) {
+    console.error("Signup error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -64,6 +65,7 @@ export const login = async (req: Request, res: Response) => {
 
     res.status(200).json({ accessToken });
   } catch (err) {
+    console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -80,6 +82,7 @@ export const refreshToken = (req: Request, res: Response) => {
     const accessToken = generateAccessToken(payload.userId);
     res.json({ accessToken });
   } catch (err) {
+    console.error("Refresh token error:", err);
     res.status(403).json({ message: "Invalid refresh token" });
   }
 };
@@ -107,6 +110,7 @@ export const sendPasswordResetLink = async (req: Request, res: Response) => {
 
     res.status(200).json({ success: true });
   } catch (err) {
+    console.error("Password reset error:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -120,26 +124,31 @@ export const resetPassword = async (req: Request, res: Response) => {
     return;
   }
 
-  // Hash the token to match DB
-  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+  try {
+    // Hash the token to match DB
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-  // Find user with valid token
-  const user = await User.findOne({
-    resetPasswordToken: hashedToken,
-    resetPasswordExpires: { $gt: new Date() }, // token is still valid
-  });
+    // Find user with valid token
+    const user = await User.findOne({
+      resetPasswordToken: hashedToken,
+      resetPasswordExpires: { $gt: new Date() }, // token is still valid
+    });
 
-  if (!user) {
-    res.status(400).json({ message: "Invalid or expired reset token" });
-    return;
+    if (!user) {
+      res.status(400).json({ message: "Invalid or expired reset token" });
+      return;
+    }
+
+    // Update password and clear reset fields
+    user.password = password;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    await user.save();
+
+    res.json({ success: true });
+  } catch (err) {
+    console.error("Reset password error:", err);
+    res.status(403).json({ message: "Invalid refresh token" });
   }
-
-  // Update password and clear reset fields
-  user.password = password;
-  user.resetPasswordToken = undefined;
-  user.resetPasswordExpires = undefined;
-
-  await user.save();
-
-  res.json({ success: true });
 };
