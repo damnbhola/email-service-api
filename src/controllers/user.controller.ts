@@ -4,7 +4,7 @@ import { User } from "../models/user.model";
 
 export const getUsers = async (_req: Request, res: Response) => {
   try {
-    const users = await User.find();
+    const users = await User.find({}, { name: 1, email: 1 }).lean();
     res.json(users);
   } catch (err) {
     console.error("Error fetching users:", err);
