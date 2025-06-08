@@ -1,10 +1,7 @@
 // src/middlewares/auth.middlewares.ts
-import { Request, Response, NextFunction } from "express";
+import { Response, NextFunction } from "express";
 import { verifyAccessToken } from "../utils/jwt";
-
-export interface AuthRequest extends Request {
-  userId?: string;
-}
+import { AuthRequest } from "../types/request";
 
 export const isAuthenticated = (
   req: AuthRequest,
