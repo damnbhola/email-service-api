@@ -1,0 +1,3 @@
+export const EMAIL_TEMPLATES = {
+  RESET_PASSWORD: 7217962,
+};

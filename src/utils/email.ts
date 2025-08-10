@@ -1,58 +1,68 @@
 // src/utils/email.ts
-import sgMail from "@sendgrid/mail";
+import Mailjet from "node-mailjet";
 
-sgMail.setApiKey(process.env.SENDGRID_API_KEY as string);
+const mailjet = new Mailjet({
+  apiKey: process.env.MJ_API_KEY || "",
+  apiSecret: process.env.MJ_API_SECRET_KEY || "",
+});
+
+const companyContacts = {
+  ContactPhone: process.env.COMPANY_CONTACT_PHONE || "",
+  ContactEmail: process.env.COMPANY_CONTACT_EMAIL || "",
+  securityContactPhone: process.env.COMPANY_SECURITY_CONTACT_PHONE || "",
+  securityContactEmail: process.env.COMPANY_SECURITY_CONTACT_EMAIL || "",
+};
 
 export const sendEmail = async (
-  to: string,
   from: string,
+  to: string,
   subject: string,
   text: string,
   html?: string
 ): Promise<void> => {
-  const msg = {
-    to,
-    from,
-    subject,
-    text,
-    html: html || `<p>${text}</p>`,
-  };
-
   try {
-    await sgMail.send(msg);
+    await mailjet.post("send", { version: "v3.1" }).request({
+      Messages: [
+        {
+          From: { Email: from },
+          To: [{ Email: to }],
+          Subject: subject,
+          TextPart: text,
+          HTMLPart: html || `<p>${text}</p>`,
+        },
+      ],
+    });
     console.log(`Email sent to ${to}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
-    console.error("SendGrid error:", error?.response?.body || error.message);
+    console.error("MailJet error:", error?.response?.body || error.message);
     throw new Error("Failed to send email");
   }
 };
 
-interface DynamicTemplateData {
-  [key: string]: string | number | boolean;
-}
-
-const companyNoReplyEmail = process.env.COMPANY_NO_REPLY_EMAIL!;
-
 export const sendNoReplyEmail = async (
+  templateId: number,
   to: string,
-  templateId: string,
-  dynamicData: DynamicTemplateData
+  resetUrl: string
 ): Promise<void> => {
-  const msg = {
-    to,
-    from: companyNoReplyEmail,
-    templateId,
-    dynamic_template_data: dynamicData,
-  };
-
   try {
-    await sgMail.send(msg);
+    await mailjet.post("send", { version: "v3.1" }).request({
+      Messages: [
+        {
+          To: [{ Email: to }],
+          TemplateID: templateId,
+          Variables: {
+            resetUrl,
+            ...companyContacts,
+          },
+        },
+      ],
+    });
     console.log(`Template email sent to ${to}`);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error(
-      "SendGrid template error:",
+      "MailJet template error:",
       error?.response?.body || error.message
     );
     throw new Error("Failed to send template email");

@@ -8,7 +8,7 @@ import {
   verifyRefreshToken,
 } from "../utils/jwt";
 import { sendNoReplyEmail } from "../utils/email";
-import { NO_REPLY_EMAIL_TEMPLATES } from "../constants";
+import { EMAIL_TEMPLATES } from "../constants/emails";
 
 const isProduction = process.env.NODE_ENV === "prod";
 
@@ -107,9 +107,7 @@ export const sendPasswordResetLink = async (req: Request, res: Response) => {
     await user.save();
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    await sendNoReplyEmail(email, NO_REPLY_EMAIL_TEMPLATES.RESET_PASSWORD, {
-      resetUrl,
-    });
+    await sendNoReplyEmail(EMAIL_TEMPLATES.RESET_PASSWORD, email, resetUrl);
 
     res.status(200).json({ success: true });
   } catch (err) {
